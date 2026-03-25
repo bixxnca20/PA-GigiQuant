@@ -11,48 +11,44 @@ typedef struct node node;
 
 void calculareVolatilitate(int nr_op,node *head,double randMediu, double *volatilitate,FILE *input)
 {
-    node* p=(node*)malloc(sizeof(node));
-    for(p=head;p!=NULL;p=p->next)
+    *volatilitate=0;
+    for(node *p=head->next;p!=NULL;p=p->next)
         *volatilitate+= (p->randament-randMediu)*(p->randament-randMediu);
-    *volatilitate=sqrt((*volatilitate) /nr_op);
-    free(p);
+    *volatilitate=sqrt((*volatilitate)*1.0 /(nr_op-1));
 }
-void adaugareRandament(int nr_op, node *head,double *randMediu,FILE *input)
+void adaugareRandament(int nr_op, node **head,double *randMediu,FILE *input)
 {
     double suma_rand=0;
-    double val_ant=head->valoare;
-
-    node* p=(node*)malloc(sizeof(node));
+    double val_ant= (*head)->valoare;
 
     //se calculeaza randamentul pentru fiecare nod
-    for(p=head->next;p!=NULL;p=p->next)
+    for(node *p= (*head)->next;p!=NULL;p=p->next)
     {
-        p->randament=(p->valoare + val_ant) / val_ant;
+        p->randament=(p->valoare - val_ant)*1.0 / val_ant;
         suma_rand+=p->randament;
         val_ant=p->valoare;
     }
-    *randMediu=suma_rand/nr_op;
-    free(p);
+    *randMediu=suma_rand*1.0/(nr_op-1);
 }
 void creeareLista(int n,node *head,FILE *input)
 {
-    int val;
+    double val;
     //creearea capului de lista
-    fscanf(input,"%d",&val);
+    fscanf(input,"%lf",&val);
     head->valoare=val;
     head->randament=0;
     head->next=NULL;
 
     //crearea listei +popularea acesteia (partiala)
     node* latest=(node*)malloc(sizeof(node));
-    fscanf(input,"%d",&val);
-    head->next=latest;
+    fscanf(input,"%lf",&val);
     latest->next=NULL;
     latest->valoare=val;
+    head->next=latest;
 
     for(int i=3;i<=n;i++)
     {
-        fscanf(input,"%d",&val);
+        fscanf(input,"%lf",&val);
         node* p=(node*)malloc(sizeof(node));
         p->next=NULL; 
         p->valoare=val;
@@ -63,6 +59,7 @@ void creeareLista(int n,node *head,FILE *input)
 
 int main(int argc, char *argv[])
 {
+    //de adaugat: exit() daca nu sunt suficiente argumente
     //deschiderea fisierelor
     FILE *input,*output;
     input=fopen(argv[1],"rb");
@@ -70,30 +67,29 @@ int main(int argc, char *argv[])
 
     //initializarea variabilelor
     int nr_op;
-    double s_r,randMediu,volatilitate=0;
+    double s_r,randMediu,volatilitate;
     fscanf(input,"%d",&nr_op);
     node* head=(node*)malloc(sizeof(node));
 
     creeareLista(nr_op,head,input);
+    //creare lista e bun
+    adaugareRandament(nr_op,&head,&randMediu,input);
 
+    //testare adaugare randament
+    //for(node *pp=head;pp!=NULL;pp=pp->next)
+      //  printf("val:%lf ran:%lf\n",pp->valoare,pp->randament);
 
-    //testarea primei functii - debugging
-    node* test=(node*)malloc(sizeof(node));
-    for(test=head;test!=NULL;test=test->next)
-        printf("%lf %lf\n",test->randament,test->valoare);
-    printf("\ndoamne ajuta");
-
-    //continuare
-
-    adaugareRandament(nr_op,head,&randMediu,input);
     calculareVolatilitate(nr_op,head,randMediu,&volatilitate,input);
-    s_r=randMediu/volatilitate;
+    s_r=randMediu*1.0/volatilitate;
 
     //afisarea rezultatelor
-    fprintf(output,"%lf %lf %lf",randMediu,volatilitate,s_r);
+    fprintf(output,"%.3lf\n",((int)(randMediu*1000))*1.0/1000);
+    fprintf(output,"%.3lf\n",((int)(volatilitate*1000))*1.0/1000);
+    fprintf(output,"%.3lf\n",((int)(s_r*1000))*1.0/1000);
+
 
     //eliberarea momeriei alocata pentru lista
-    node* previous=(node*)malloc(sizeof(node));
+    /*node* previous=(node*)malloc(sizeof(node));
     node* p=(node*)malloc(sizeof(node));
 
     previous=head;
@@ -104,7 +100,7 @@ int main(int argc, char *argv[])
         }
     free(previous);
     free(p);
-
+    */
     //inchiderea fisierelor
     fclose(input);
     fclose(output);
