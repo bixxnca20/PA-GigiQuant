@@ -74,11 +74,6 @@ int main(int argc, char *argv[])
     creeareLista(nr_op,head,input);
     //creare lista e bun
     adaugareRandament(nr_op,&head,&randMediu,input);
-
-    //testare adaugare randament
-    //for(node *pp=head;pp!=NULL;pp=pp->next)
-      //  printf("val:%lf ran:%lf\n",pp->valoare,pp->randament);
-
     calculareVolatilitate(nr_op,head,randMediu,&volatilitate,input);
     s_r=randMediu*1.0/volatilitate;
 
