@@ -56,12 +56,24 @@ void creeareLista(int n,node *head,FILE *input)
         latest=p;
     }
 }
-
-int main(int argc, char *argv[])
+void eliberareMemorie(node **head)
 {
-    //de adaugat: exit() daca nu sunt suficiente argumente
+    node* temp=NULL;
+    while((*head)!=NULL)
+    {
+        temp= (*head)->next;
+        free(*head);
+        *head=temp;
+    }
+    free(temp);
+}
+
+
+int main(int argc, const char *argv[])
+{
     //deschiderea fisierelor
     FILE *input,*output;
+    
     input=fopen(argv[1],"rb");
     output=fopen(argv[2],"wb");
 
@@ -82,20 +94,9 @@ int main(int argc, char *argv[])
     fprintf(output,"%.3lf\n",((int)(volatilitate*1000))*1.0/1000);
     fprintf(output,"%.3lf\n",((int)(s_r*1000))*1.0/1000);
 
+    //eliberarea memoriei
+    eliberareMemorie(&head);
 
-    //eliberarea momeriei alocata pentru lista
-    /*node* previous=(node*)malloc(sizeof(node));
-    node* p=(node*)malloc(sizeof(node));
-
-    previous=head;
-    for(p=head->next;p->next!=NULL;p=p->next)
-        {
-            free(previous);
-            previous=p;
-        }
-    free(previous);
-    free(p);
-    */
     //inchiderea fisierelor
     fclose(input);
     fclose(output);
