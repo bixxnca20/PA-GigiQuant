@@ -19,10 +19,9 @@ float pop(nodeS **top)
 }
 void deleteStack(nodeS **top)
 {
-    nodeS *temp = *top;
     while (*top != NULL)
     {
-        temp = *top;
+        nodeS *temp = *top;
         *top = (*top)->next;
         free(temp);
     }
@@ -33,10 +32,12 @@ Queue *createQ()
     q->front = q->rear = NULL;
     return q;
 }
-void enq(Queue *q, float val)
+void enq(Queue *q, float val, int day, const char city[])
 {
     shareInfo *nou = (shareInfo *)malloc(sizeof(shareInfo));
     nou->val = val;
+    nou->day = day;
+    strcpy(nou->city, city);
     nou->next = NULL;
 
     if (q->rear == NULL) // queue e empty
@@ -52,24 +53,20 @@ void enq(Queue *q, float val)
 }
 
 // coada - adaugare si stergere element
-float deq(Queue *q)
+void deq(Queue *q)
 {
     if (q->front == NULL)
     {
-        return (float)(-1); // coada este goala
+        return; // coada este goala
     }
 
     shareInfo *aux = q->front;
-    float val = aux->val;
     q->front = (q->front)->next;
 
     if (q->front == NULL)
-    {
         q->rear = NULL;
-    }
 
     free(aux);
-    return val;
 }
 void deleteQueue(Queue *q)
 {
@@ -103,4 +100,31 @@ void creaareStiva(nodeS **share, char city[], FILE *input)
         push(share, val);
     }
     // se adauga in stiva share val
+}
+void creeareCoada(nodeS **share1, nodeS **share2, nodeS **share3, Queue *q, char *city1, char *city2, char *city3)
+{
+    int i = 1;
+    while (*share1 != NULL && *share2 != NULL && *share3 != NULL)
+    {
+        if ((*share1)->val == (*share2)->val && (*share1)->val != (*share3)->val)
+            enq(q, fabs((*share1)->val - (*share3)->val), i, city3); // diferenta,ziua,orasul diferit
+        else if ((*share1)->val == (*share3)->val && (*share1)->val != (*share2)->val)
+            enq(q, fabs((*share1)->val - (*share2)->val), i, city2); // diferenta,ziua,orasul diferit
+        else if ((*share2)->val == (*share3)->val && (*share1)->val != (*share2)->val)
+            enq(q, fabs((*share1)->val - (*share3)->val), i, city1); // diferenta,ziua,orasul diferit
+
+        pop(share1);
+        pop(share2);
+        pop(share3);
+
+        i++;
+    }
+}
+void afisareCoada(Queue *q, FILE *output)
+{
+    while (q->front != NULL)
+    {
+        fprintf(output, "ziua %d - %.2f - %s\n", q->front->day, q->front->val, q->front->city);
+        deq(q);
+    }
 }

@@ -15,7 +15,6 @@ int main(int argc, const char *argv[])
     output = fopen(argv[2], "wb");
 
     char *num = (char *)malloc(sizeof(argv[1]) + 1);
-
     strcpy(num, argv[1]);
 
     if (selectare(num) == 1)
@@ -55,9 +54,14 @@ int main(int argc, const char *argv[])
         creaareStiva(&share2, city2, input);
         creaareStiva(&share3, city3, input);
 
+        Queue *q = createQ();
+        creeareCoada(&share1, &share2, &share3, q, city1, city2, city3);
+        afisareCoada(q, output);
+
         deleteStack(&share1);
         deleteStack(&share2);
         deleteStack(&share3);
+        deleteQueue(q);
 
         fclose(input);
         fclose(output);
