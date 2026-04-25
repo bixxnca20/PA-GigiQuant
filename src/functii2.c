@@ -26,6 +26,8 @@ void deleteStack(nodeS **top)
         free(temp);
     }
 }
+
+// coada - creearea si stergerea unei cozi, adaugarea si stergerea unui element
 Queue *createQ()
 {
     Queue *q = (Queue *)malloc(sizeof(Queue));
@@ -52,7 +54,6 @@ void enq(Queue *q, float val, int day, const char city[])
     }
 }
 
-// coada - adaugare si stergere element
 void deq(Queue *q)
 {
     if (q->front == NULL)

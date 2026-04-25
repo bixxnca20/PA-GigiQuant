@@ -14,6 +14,7 @@ int main(int argc, const char *argv[])
     input = fopen(argv[1], "rb");
     output = fopen(argv[2], "wb");
 
+    // pentru a afla numarul fisierului de input
     char *num = (char *)malloc(sizeof(argv[1]) + 1);
     strcpy(num, argv[1]);
 
@@ -47,6 +48,8 @@ int main(int argc, const char *argv[])
     }
     if (selectare(num) == 2)
     {
+        //task 2
+        //declararea variabilelor
         char city1[20], city2[20], city3[20];
         nodeS *share1 = NULL, *share2 = NULL, *share3 = NULL;
 
@@ -58,14 +61,17 @@ int main(int argc, const char *argv[])
         creeareCoada(&share1, &share2, &share3, q, city1, city2, city3);
         afisareCoada(q, output);
 
+        //eliberarea memoriei
         deleteStack(&share1);
         deleteStack(&share2);
         deleteStack(&share3);
         deleteQueue(q);
 
+        //inchiderea fisierelor
         fclose(input);
         fclose(output);
     }
+    //eliberarea variabilei cu care am aflat nr fisierului de input
     free(num);
 
     return 0;
