@@ -5,6 +5,7 @@
 #include "task1.h"
 #include "functii.h"
 #include "task2.h"
+#include "task3.h"
 
 int main(int argc, const char *argv[])
 {
@@ -48,8 +49,8 @@ int main(int argc, const char *argv[])
     }
     if (selectare(num) == 2)
     {
-        //task 2
-        //declararea variabilelor
+        // task 2
+        // declararea variabilelor
         char city1[20], city2[20], city3[20];
         nodeS *share1 = NULL, *share2 = NULL, *share3 = NULL;
 
@@ -61,18 +62,63 @@ int main(int argc, const char *argv[])
         creeareCoada(&share1, &share2, &share3, q, city1, city2, city3);
         afisareCoada(q, output);
 
-        //eliberarea memoriei
+        // eliberarea memoriei
         deleteStack(&share1);
         deleteStack(&share2);
         deleteStack(&share3);
         deleteQueue(q);
 
-        //inchiderea fisierelor
+        // inchiderea fisierelor
+        /*fclose(input);
+        fclose(output);*/
+    }
+    if (selectare(num) == 3)
+    {
+        // task 3
+
+        // functie pt a afla cate zile sunt
+        int nrlines = nrLines(input);
+        
+        fclose(input);
+        input = fopen(argv[1], "rb");
+
+        // se creeaza o lista cu toate companiile
+        nodeA *company = creeareListaCompanii(input);
+
+         //se populeaza vectorul care retine toate preturile
+        double *price=malloc(sizeof(double)*nrlines*10 + 1);
+        int nr = 0, index = 0;
+        vectorStock(price, input, &nr, nrlines);
+
+        // se creaza root-ul arborelui si ii se atribuie lista cu toate companiile
+        root *parent;
+        parent = creeareRoot();
+        parent->nod = company;
+
+        //se adauga atatea niveluri goale cate zile sunt
+        for(int i=0;i<nrlines;i++)
+            emptyLevel(parent);
+        
+        //se muta fiecare companie,pe rand, la frunza ei
+        int n=0,listindex=0;
+        frunzeTree(parent,price,nr,&company,&n);
+
+        //se stocheaza toate frunzele in ordine de la stanga la dreapta
+        char frunze[11][6];
+        int nrf = 0;
+        vectorFrunze(parent, frunze, &nrf);
+        
+        //se afiseaza perechile cerute
+        afisarePerechi(output, company, frunze, nrf);
+        
+        // trebuie eliberata memoria
+        free(price);
+
+        //se inchid fisierele
         fclose(input);
         fclose(output);
     }
-    //eliberarea variabilei cu care am aflat nr fisierului de input
+    // eliberarea variabilei cu care am aflat nr fisierului de input
     free(num);
-
     return 0;
 }
