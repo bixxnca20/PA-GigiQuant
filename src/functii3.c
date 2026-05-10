@@ -3,59 +3,49 @@ int nrLines(FILE *input)
 {
     int nr = 0;
     char lit;
-    while (lit = fgetc(input))
+    while (fscanf(input, "%c", &lit) == 1)
+    {
         if (lit == '\n')
+        {
             nr++;
-    return nr;
+        }
+    }
+    return (nr - 1);
 }
-nodeA *creeareListaCompanii(FILE *input) // poate sa fie void
+void creeareListaCompanii(FILE *input, nodeA *headc) // poate sa fie void
 {
     int count = 0, i = 0;
     char lit;
-    nodeA *headc = NULL;
-    nodeA *last = NULL;
+    nodeA *p = headc;
     // popularea nodurilor cu numele companiior
-    while (count < 10)
+    while (fscanf(input, "%c", &lit) == 1 && lit != '\n')
     {
-        nodeA *company = (nodeA *)malloc(sizeof(nodeA));
-        company->next = NULL;
-        company->index = count;
-        strcpy(company->name, "");
-
-        do
+        if (lit == '\r')
+            continue;
+        if (lit != ',')
         {
-            lit = getc(input);
-            company->name[i++] = lit;
-        } while (lit != ',' && lit != '\n' && lit != '\r');
-
-        company->name[i] = '\0';
-        i = 0;
-
-        // legarea listei
-        if (count == 0)
-            headc = company;
+            p->name[i] = lit;
+            i++;
+        }
         else
         {
-            last->next = company;
+            p->name[i] = '\0';
+            i = 0;
+            count++;
+
+            nodeA *node = (nodeA *)malloc(sizeof(nodeA));
+            node->next = NULL;
+            node->index = count;
+            node->valoare = 0;
+
+            p->next = node;
+            p = node;
         }
-
-        last = company;
-        count++;
     }
-    return headc;
+    p->name[i] = '\0';
 }
 
-root *creeareRoot()
-{
-    root *parent = (root *)malloc(sizeof(root));
-    parent->left = NULL;
-    parent->right = NULL;
-    parent->nod = NULL;
-
-    return parent;
-}
-
-nodeA *creeareNod(nodeA *node, double val)
+nodeA *creeareNod(const nodeA *node, double val)
 {
     nodeA *stock = (nodeA *)malloc(sizeof(nodeA));
     stock->index = node->index;
@@ -68,137 +58,161 @@ nodeA *creeareNod(nodeA *node, double val)
 
 void vectorStock(double price[], FILE *input, int *nr, int nrlines)
 {
-    for (int j = 0; j <= nrlines; j++)
+    int i, j;
+    for (j = 0; j <= nrlines; j++)
     {
-        for (int i = j * 10; i < (j + 1) * 10 - 1; i++)
+        for (i = j * 10; i < (j + 1) * 10 - 1; i++)
         {
-            fscanf(input, "%lf,", price + (*nr));
+            fscanf(input, "%lf,", &price[i]);
             (*nr)++;
         }
-        fscanf(input, "%lf\n", price + (*nr));
+        fscanf(input, "%lf\n", &price[i]);
         (*nr)++;
     }
 }
 
-void emptyLevel(root *root)
-{
-    while (root != NULL)
-    {
-        // daca este frunza
-        if (root->left == NULL && root->right == NULL)
-        {
-            creeareRoot(root->left);
-            creeareRoot(root->right);
-        }
-
-        emptyLevel(root->left);
-        emptyLevel(root->right);
-    }
-}
-
-void frunzeTree(root *root, double price[], int nr, nodeA **company, int *n)
+void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
 {
     // nr = nr de zile
     //*n => pt indexarea vectorului de preturi
     // index => indexul din lista initiala
-    nodeA *aux = root->nod;
+    // nodeA *aux = root->nod;
+
     if ((*company) == NULL)
         return;
 
     int days = 1, index = (*company)->index;
+    ROOT *current = root;
     nodeA *p;
 
     // se creeaza nodul
-    nodeA *nod = (nodeA *)malloc(sizeof(nodeA));
-    nod = creeareNod(*company, price[*n + index]);
+    nodeA *nod = creeareNod(*company, price[*n + index]);
 
-    while (days <= nr)
+    while (days < nr)
     {
-        // nodul merge la dreapta
-        if ((*company)->valoare < price[*n + index])
-        {
-            // daca s a ajuns la frunza si aceasta mai are noduri
-            if (days == nr && root->right->nod != NULL)
-                for (p = root->right->nod; p != NULL; p = p->next)
-                    if (p->next == NULL)
-                        p->next = nod;
-                    // daca frunza nu are noduri
-                    else
-                        root->right->nod = nod;
-            else if (days != nr)
+        // daca este nod intern
+        if (days < nr-1)
+            if ((*company)->valoare < price[*n + index])
             {
-                root->right->nod = nod;
-                free(root->nod);
-                root = root->right;
+                if (current->right == NULL)
+                    current->right = (ROOT *)malloc(sizeof(ROOT));
+                current = current->right;
             }
-        }
-        // nodul merge la stanga
-        else
-        {
-            // daca s a ajuns la frunza si aceasta mai are noduri
-            if (days == nr && root->left->nod != NULL)
-                for (p = root->left->nod; p != NULL; p = p->next)
-                    if (p->next == NULL)
-                        p->next = nod;
-                    // daca frunza nu are noduri
-                    else
-                        root->left->nod = nod;
-            else if (days != nr)
+            else
             {
-                root->left->nod = nod;
-                free(root->nod);
-                root = root->left;
+                if (current->left == NULL)
+                    current->left = (ROOT *)malloc(sizeof(ROOT));
+                current = current->left;
+            }
+        else
+        { // s a ajuns la frunza
+            if ((*company)->valoare < price[*n + index])
+            {
+                if (current->right == NULL)
+                    current->right = (ROOT *)malloc(sizeof(ROOT));
+                if (current->right->nod == NULL)
+                    current->right->nod = nod;
+                else
+                {
+                    for (p = current->right->nod; p->next != NULL; p = p->next)
+                        ;
+                    p->next = nod;
+                }
+            }
+            else
+            {
+                // s a ajuns la frunza
+                if (current->left == NULL)
+                    current->left = (ROOT *)malloc(sizeof(ROOT));
+                if (current->left->nod == NULL)
+                    current->left->nod = nod;
+                else
+                {
+                    for (p = current->left->nod; p->next != NULL; p = p->next)
+                        ;
+                    p->next = nod;
+                }
             }
         }
         (*company)->valoare = price[*n + index];
         (*n) += 10;
         days++;
     }
-    (*n) = 0;
+    (*n) = 10;
     (*company) = (*company)->next;
     frunzeTree(root, price, nr, company, n);
 }
-
-// stocarea frunzelor intr un vector
-void vectorFrunze(root *root, char frunze[][6], int *nr)
+void frunze(ROOT *root)
 {
+    if (root == NULL)
+        return;
+    frunze(root->left);
 
-    if (root != NULL)
-    {
-        // este frunza
-        if (root->left == NULL && root->right == NULL)
-        {
-            for (nodeA *p = root->nod; p != NULL; p = p->next)
-            {
-                strcpy(frunze[*nr], p->name);
-                (*nr)++;
-            }
-        }
-        vectorFrunze(root->left, frunze, nr);
-        vectorFrunze(root->right, frunze, nr);
-    }
+    if (root->left == NULL && root->right == NULL)
+        for (nodeA *p = root->nod; p != NULL; p = p->next)
+            printf("%s ", p->name);
+    frunze(root->right);
 }
 
-void afisarePerechi(FILE *output, nodeA *headc, char frunze[][6], int nr)
-{
-    int i, j;
-    char aux[6];
-    for (i = 0, j = nr - 1; i < j; i++, j--)
-    {
-        for (nodeA *p = headc; p != NULL; p = p->next)
-        {
-            if (strcmp(frunze[i], p->name) == 0)
-                break;
+void perechiCompanii(FILE *output, ROOT *left, ROOT *right)
+{ // left face preorder
+  // right face postorder
 
-            // interschimbarea numelor astfel incat ca ele sa fie in ordine cronologica
-            if (strcmp(frunze[j], p->name) == 0)
-            {
-                strcpy(aux, frunze[i]);
-                strcpy(frunze[i], frunze[j]);
-                strcpy(frunze[j], aux);
-                break;
-            }
-        }
-        fprintf(output, "%s-%s\n", frunze[i], frunze[j]);
+    if (left == NULL || right == NULL)
+        return;
+    // ambele sunt frunze
+    if (left->right == NULL && left->left == NULL && right->right == NULL && right->left == NULL)
+    {
+        for (nodeA *p = left->nod; p != NULL; p = p->next)
+            for (nodeA *q = right->nod; q != NULL; q = q->next)
+                if (p->index > q->index)
+                    fprintf(output, "%s-%s\n", q->name, p->name);
+                else
+                    fprintf(output, "%s-%s\n", p->name, q->name);
+        
+        return;
+    } 
+     // numai left este frunza
+     else if (left->nod != NULL && left->left == NULL && left->right == NULL)
+     {
+         perechiCompanii(output, left, right->right);
+         perechiCompanii(output, left, right->left);
+         return;
+     }
+     // numai right este frunza
+     else if (right->nod != NULL && right->left == NULL && right->right == NULL)
+     {
+         perechiCompanii(output, left->left, right);
+         perechiCompanii(output, left->right, right);
+         return;
+     }
+    perechiCompanii(output, left->left, right->right);
+    perechiCompanii(output, left->right, right->left);
+}
+
+void freeTree(ROOT *root)
+{
+    if (root == NULL)
+        return;
+    freeTree(root->right);
+    freeTree(root->left);
+    nodeA *temp = NULL;
+    while (root->nod != NULL)
+    {
+        temp = root->nod;
+        root->nod = root->nod->next;
+        free(temp);
+    }
+    free(root);
+}
+
+void freeList(nodeA *head)
+{
+    nodeA *temp = NULL;
+    while (head != NULL)
+    {
+        temp = head;
+        head = head->next;
+        free(temp);
     }
 }

@@ -16,19 +16,22 @@ struct root
     nodeA *nod;
     struct root *left, *right;
 };
-typedef struct root root;
+typedef struct root ROOT;
 
 int nrLines(FILE *input);
 //procesarea datelor
-nodeA *creeareListaCompanii(FILE *input);
+void creeareListaCompanii(FILE *input,nodeA *headc);
 void vectorStock(double price[],FILE *input,int *nr,int nrlines);
 
-root *creeareRoot();
-nodeA *creeareNod(nodeA*node,double val);
+nodeA *creeareNod(const nodeA*node,double val);
 
-void emptyLevel(root *root);
-void frunzeTree(root *root, double price[], int nr, nodeA **company,int *n);
+void frunzeTree(ROOT *root, double price[], int nr, nodeA **company,int *n);
 
-void urmatoareaZi(root *root,double price[],int index);
-void vectorFrunze(root *root,char frunze[][6],int *nr);
-void afisarePerechi(FILE *output,nodeA *headc, char frunze[][6],int nr);
+void perechiCompanii(FILE *output, ROOT *left, ROOT *right);
+
+void frunze(ROOT *root);
+void nrCompanii(ROOT *root,char frunze[][6],int *index,int nrcomp[],int *indexc);
+void perechiCompanii(FILE *output, ROOT *left, ROOT *right);
+
+void freeTree(ROOT *root);
+void freeList(nodeA *head);

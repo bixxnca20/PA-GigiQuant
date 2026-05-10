@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "task1.h"
-#include "functii.h"
-#include "task2.h"
 #include "task3.h"
+#include "task1.h"
+#include "task2.h"
+#include "functii.h"
 
 int main(int argc, const char *argv[])
 {
@@ -75,46 +75,44 @@ int main(int argc, const char *argv[])
     if (selectare(num) == 3)
     {
         // task 3
-
         // functie pt a afla cate zile sunt
         int nrlines = nrLines(input);
-        
+
         fclose(input);
         input = fopen(argv[1], "rb");
 
         // se creeaza o lista cu toate companiile
-        nodeA *company = creeareListaCompanii(input);
+        nodeA *company=(nodeA*)malloc(sizeof(nodeA));
+        creeareListaCompanii(input,company);
 
-         //se populeaza vectorul care retine toate preturile
-        double *price=malloc(sizeof(double)*nrlines*10 + 1);
-        int nr = 0, index = 0;
+        // se populeaza vectorul care retine toate preturile
+        double price[51];
+        int nr = 0;
         vectorStock(price, input, &nr, nrlines);
 
+        // se adauga in lista preturile din prima zi
+        for (nodeA *p = company; p != NULL; p = p->next)
+            p->valoare = price[p->index];
+
         // se creaza root-ul arborelui si ii se atribuie lista cu toate companiile
-        root *parent;
-        parent = creeareRoot();
+        ROOT *parent = (ROOT *)malloc(sizeof(ROOT));
         parent->nod = company;
+        parent->right = NULL;
+        parent->left = NULL;
 
-        //se adauga atatea niveluri goale cate zile sunt
-        for(int i=0;i<nrlines;i++)
-            emptyLevel(parent);
-        
-        //se muta fiecare companie,pe rand, la frunza ei
-        int n=0,listindex=0;
-        frunzeTree(parent,price,nr,&company,&n);
 
-        //se stocheaza toate frunzele in ordine de la stanga la dreapta
-        char frunze[11][6];
-        int nrf = 0;
-        vectorFrunze(parent, frunze, &nrf);
-        
-        //se afiseaza perechile cerute
-        afisarePerechi(output, company, frunze, nrf);
-        
-        // trebuie eliberata memoria
-        free(price);
+        // se muta fiecare companie,pe rand, la frunza ei
+        int n = 10;
+        frunzeTree(parent, price, nrlines, &company, &n);
 
-        //se inchid fisierele
+        // se afiseaza perechile cerute
+        perechiCompanii(output,parent->left,parent->right);
+
+        //se elibereaza memoria
+        freeTree(parent);
+        freeList(company);
+
+        // se inchid fisierele
         fclose(input);
         fclose(output);
     }
