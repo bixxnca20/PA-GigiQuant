@@ -6,6 +6,7 @@
 #include "task1.h"
 #include "task2.h"
 #include "functii.h"
+#include "task4.h"
 
 int main(int argc, const char *argv[])
 {
@@ -82,8 +83,8 @@ int main(int argc, const char *argv[])
         input = fopen(argv[1], "rb");
 
         // se creeaza o lista cu toate companiile
-        nodeA *company=(nodeA*)malloc(sizeof(nodeA));
-        creeareListaCompanii(input,company);
+        nodeA *company = (nodeA *)malloc(sizeof(nodeA));
+        creeareListaCompanii(input, company);
 
         // se populeaza vectorul care retine toate preturile
         double price[51];
@@ -100,22 +101,81 @@ int main(int argc, const char *argv[])
         parent->right = NULL;
         parent->left = NULL;
 
-
         // se muta fiecare companie,pe rand, la frunza ei
         int n = 10;
         frunzeTree(parent, price, nrlines, &company, &n);
+        
+        //se realizeaza afisarea
+        int index=0;
+        nodeA *cosfrunze=malloc(10*sizeof(nodeA));
+        colectareFrunze(parent,&cosfrunze,&index);
 
-        // se afiseaza perechile cerute
-        perechiCompanii(output,parent->left,parent->right);
+        afisareFrunze(output,&cosfrunze,index);
 
-        //se elibereaza memoria
+        // se elibereaza memoria
         freeTree(parent);
         freeList(company);
+        for(int i=0;i<index;i++)
+            free(cosfrunze+i);
 
         // se inchid fisierele
+        /*
+        fclose(input);
+        fclose(output);*/
+    }
+    if (selectare(num) == 4)
+    {
+        //task 4
+        int nrstari, days;
+        float size, start, target;
+
+        //se citesc valorile
+        fscanf(input, "%d", &nrstari);
+        fscanf(input, "%f", &size);
+        fscanf(input, "%d", &days);
+        fscanf(input, "%f", &start);
+        fscanf(input, "%f", &target);
+
+        //se stocheaza preturile intr un vector
+        float *prices = malloc(nrstari * sizeof(float));
+        for (int i = 0; i < nrstari; i++)
+        {
+            float readv;
+            fscanf(input, "%f", &readv);
+            prices[i] = readv;
+        }
+
+        //se creeaza un vector pentru intervalele nodurilor
+        float *interval = calloc(nrstari, sizeof(float));
+        int nrInterval = creeareIntervaluri(nrstari, size, start, prices, interval);
+
+        //creearea grafului si a matricei sale de adiacenta
+        graph *g = creareaGraf(nrstari, size, start, prices, interval, nrInterval);
+
+        // se creeaza matricea de probabilitati
+        int **stare = malloc(2 * sizeof(int *));
+        stare[0] = calloc(g->v, sizeof(int)); 
+        stare[1] = calloc(g->v, sizeof(int)); 
+
+        // simularea proriu-zisa
+        Stare(output, g, size, days, start, target, interval, stare);
+
+        //se elibereaza memoria
+        free(prices);
+        free(interval);
+        for (int i = 0; i < g->v; i++)
+            free(g->mat[i]);
+        free(g->mat);
+        free(g);
+        free(stare[0]);
+        free(stare[1]);
+        free(stare);
+
+        //se inchid fisierele
         fclose(input);
         fclose(output);
     }
+
     // eliberarea variabilei cu care am aflat nr fisierului de input
     free(num);
     return 0;

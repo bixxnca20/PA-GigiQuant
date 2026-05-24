@@ -91,7 +91,7 @@ void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
     while (days < nr)
     {
         // daca este nod intern
-        if (days < nr-1)
+        if (days < nr - 1)
             if ((*company)->valoare < price[*n + index])
             {
                 if (current->right == NULL)
@@ -142,16 +142,23 @@ void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
     (*company) = (*company)->next;
     frunzeTree(root, price, nr, company, n);
 }
-void frunze(ROOT *root)
+void frunze(ROOT *root, char matfrunze[][5], int *index)
 {
     if (root == NULL)
         return;
-    frunze(root->left);
-
+    frunze(root->left, matfrunze, index);
+    int i = 0;
     if (root->left == NULL && root->right == NULL)
+    {
         for (nodeA *p = root->nod; p != NULL; p = p->next)
-            printf("%s ", p->name);
-    frunze(root->right);
+        {
+            strcpy(matfrunze[*index], p->name);
+            i++;
+        }
+        // strncat(matfrunze[*index]," ",1);
+        (*index)++;
+    }
+    frunze(root->right, matfrunze, index);
 }
 
 void perechiCompanii(FILE *output, ROOT *left, ROOT *right)
@@ -169,25 +176,50 @@ void perechiCompanii(FILE *output, ROOT *left, ROOT *right)
                     fprintf(output, "%s-%s\n", q->name, p->name);
                 else
                     fprintf(output, "%s-%s\n", p->name, q->name);
-        
+
         return;
-    } 
-     // numai left este frunza
-     else if (left->nod != NULL && left->left == NULL && left->right == NULL)
-     {
-         perechiCompanii(output, left, right->right);
-         perechiCompanii(output, left, right->left);
-         return;
-     }
-     // numai right este frunza
-     else if (right->nod != NULL && right->left == NULL && right->right == NULL)
-     {
-         perechiCompanii(output, left->left, right);
-         perechiCompanii(output, left->right, right);
-         return;
-     }
+    }
+    // numai left este frunza
+    else if (left->nod != NULL && left->left == NULL && left->right == NULL)
+    {
+        perechiCompanii(output, left, right->right);
+        perechiCompanii(output, left, right->left);
+        return;
+    }
+    // numai right este frunza
+    else if (right->nod != NULL && right->left == NULL && right->right == NULL)
+    {
+        perechiCompanii(output, left->left, right);
+        perechiCompanii(output, left->right, right);
+        return;
+    }
     perechiCompanii(output, left->left, right->right);
     perechiCompanii(output, left->right, right->left);
+}
+
+void colectareFrunze(ROOT *root, nodeA **cosfrunze, int *indexcolectare)
+{
+    if (root == NULL)
+        return;
+
+    // este frunza
+    if (root->left == NULL && root->right == NULL)
+    {
+        cosfrunze[*indexcolectare] = root->nod;
+        (*indexcolectare)++;
+    }
+
+    // parcurgere in-order
+    colectareFrunze(root->left, cosfrunze, indexcolectare);
+    colectareFrunze(root->left, cosfrunze, indexcolectare);
+}
+
+void afisareFrunze(FILE *output, nodeA **cosfrunze, int index)
+{
+    for (int i = 0; i < index / 2; i++)
+        for (nodeA *p = cosfrunze[i]; p != NULL; p = p->next)
+            for (nodeA *q = cosfrunze[index - i - 1]; q != NULL; q = q->next)
+                fprintf(output, "%s-%s\n", p->name, q->name);
 }
 
 void freeTree(ROOT *root)
