@@ -34,7 +34,7 @@ void cmmdc(int *numarator, int *numitor)
     }
 }
 
-int creeareIntervaluri(int nrstari, float size, float start,const  float prices[], float *interval)
+int creeareIntervaluri(int nrstari, float size, float start, const float prices[], float *interval)
 {
     int nr = 0;
 
@@ -96,35 +96,34 @@ graph *creareaGraf(int nrstari, float size, float start, const float prices[], c
         int ind1 = -1, ind2 = -1;
         for (int j = 0; j < nrInterval; j++)
         {
-            if (fabs(interval[j] - cap1)<0.0001)
+            if (fabs(interval[j] - cap1) < 0.0001)
                 ind1 = j;
-            if (fabs(interval[j] - cap2)<0.0001)
+            if (fabs(interval[j] - cap2) < 0.0001)
                 ind2 = j;
         }
 
         if (ind1 != -1 && ind2 != -1)
             g->mat[ind1][ind2]++;
-        
     }
 
     return g;
 }
 
-void Stare(FILE *output, graph *g, float size, int days, float start, float target,const float interval[], int **stare)
+void Stare(FILE *output, graph *g, float size, int days, float start, float target, const float interval[], int **stare)
 {
     // se cauta pozitia lui start
 
     int indstart = -1;
     int indtarget = -1;
 
-    float capstart=floor(start/size)*size;
-    float captarget=floor(target/size)*size;
+    float capstart = floor(start / size) * size;
+    float captarget = floor(target / size) * size;
 
     for (int i = 0; i < g->v; i++)
     {
-        if (fabs(interval[i] -capstart)<0.0001)
+        if (fabs(interval[i] - capstart) < 0.0001)
             indstart = i;
-        if (fabs(interval[i] - captarget)<0.0001)
+        if (fabs(interval[i] - captarget) < 0.0001)
             indtarget = i;
     }
 
@@ -143,7 +142,7 @@ void Stare(FILE *output, graph *g, float size, int days, float start, float targ
 
     // vectori auxiliari pentru ziua urmatoare
     int *nextNumarator = (int *)calloc(g->v, sizeof(int));
-    int *nextNumitor = (int*)calloc(g->v, sizeof(int));
+    int *nextNumitor = (int *)calloc(g->v, sizeof(int));
 
     // afisare ziua 0
     if (stare[0][indtarget] == 0)
@@ -202,15 +201,27 @@ void Stare(FILE *output, graph *g, float size, int days, float start, float targ
         }
 
         // afisarea probabilitatii lui target
+        if (currentday != (days - 2))
+        {
+            if (indtarget == -1 || stare[0][indtarget] == 0)
+                fprintf(output, "0\n");
 
-        if (indtarget == -1 || stare[0][indtarget] == 0)
-            fprintf(output, "0\n");
+            else if (stare[0][indtarget] == stare[1][indtarget])
+                fprintf(output, "1\n");
 
-        else if (stare[0][indtarget] == stare[1][indtarget])
-            fprintf(output, "1\n");
+            else
+                fprintf(output, "%d/%d\n", stare[0][indtarget], stare[1][indtarget]);
+        }
+        else{
+            if (indtarget == -1 || stare[0][indtarget] == 0)
+                fprintf(output, "0");
 
-        else
-            fprintf(output, "%d/%d\n", stare[0][indtarget], stare[1][indtarget]);
+            else if (stare[0][indtarget] == stare[1][indtarget])
+                fprintf(output, "1");
+
+            else
+                fprintf(output, "%d/%d", stare[0][indtarget], stare[1][indtarget]);
+        }
     }
 
     free(nextNumarator);

@@ -151,7 +151,7 @@ void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
     (*n) = 10;
     (*company) = (*company)->next;
     frunzeTree(root, price, nr, company, n);
-}
+}/*
 void frunze(ROOT *root, char matfrunze[][5], int *index)
 {
     if (root == NULL)
@@ -169,7 +169,7 @@ void frunze(ROOT *root, char matfrunze[][5], int *index)
         (*index)++;
     }
     frunze(root->right, matfrunze, index);
-}
+}*/
 
 void perechiCompanii(FILE *output, ROOT *left, ROOT *right)
 { // left face preorder
@@ -213,7 +213,7 @@ void colectareFrunze(ROOT *root, nodeA **cosfrunze, int *indexcolectare)
         return;
 
     // este frunza
-    if (root->left == NULL && root->right == NULL && root->nod != NULL)
+    if (root->left == NULL && root->right == NULL)
     {
         cosfrunze[*indexcolectare] = root->nod;
         (*indexcolectare)++;
@@ -224,14 +224,55 @@ void colectareFrunze(ROOT *root, nodeA **cosfrunze, int *indexcolectare)
     colectareFrunze(root->left, cosfrunze, indexcolectare);
     colectareFrunze(root->right, cosfrunze, indexcolectare);
 }
-
+/*
 void afisareFrunze(FILE *output, nodeA **cosfrunze, int index)
 {
-    for (int i = 0; i < index / 2; i++)
+    /*for (int i = 0,j=index-1; i < j; i++,j--)
+        {
+            if (cosfrunze[i] == NULL)
+                i++;
+            if (cosfrunze[j] == NULL)
+                j--;
+            for (nodeA *p = cosfrunze[i]; p != NULL; p = p->next)
+                for (nodeA *q = cosfrunze[j]; q != NULL; q = q->next)
+                    fprintf(output, "%s-%s\n", p->name, q->name);
+        }*/
+    // se creaza o matrice pentru a nu afisa aceeasi pereche de mai multe ori
+   /* int check[11][11];
+    int nline = 1;
+    for (int i = 0; i < 10; i++)
+        for (int j = 0; j < 10; j++)
+            check[i][j] = 0;
+
+    for (int i = 0; i < index; i++)
+    {
+        int j = index - i-1;
+        if (cosfrunze[i] == NULL || cosfrunze[j] == NULL)
+            continue;
+        if (i >= j)
+            break;
         for (nodeA *p = cosfrunze[i]; p != NULL; p = p->next)
-            for (nodeA *q = cosfrunze[index - i - 1]; q != NULL; q = q->next)
-                fprintf(output, "%s-%s\n", p->name, q->name);
-}
+            for (nodeA *q = cosfrunze[j]; q != NULL; q = q->next)
+            {
+                int pind = p->index;
+                int qind = q->index;
+                if (pind != qind && check[pind][qind] == 0)
+                {
+                    {
+                        check[pind][qind] = 1;
+                        check[qind][pind] = 1;
+                    }
+                    if (nline == 1) // este prima pereche
+                    {
+                        fprintf(output, "%s-%s", p->name, q->name);
+                        nline = 0;
+                    }
+                    else
+                        fprintf(output, "\n%s-%s", p->name, q->name);
+                }
+            }
+    }
+}*/
 
 void freeTree(ROOT *root)
 {

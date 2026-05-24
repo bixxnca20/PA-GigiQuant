@@ -106,17 +106,18 @@ int main(int argc, const char *argv[])
         frunzeTree(parent, price, nrlines, &company, &n);
         
         //se realizeaza afisarea
-        int index=0;
-        nodeA *cosfrunze=malloc(10*sizeof(nodeA));
-        colectareFrunze(parent,&cosfrunze,&index);
+        //int index=0;
+        nodeA **cosfrunze=(nodeA**)malloc(10*sizeof(nodeA*));
+        for(int i=0;i<10;i++)
+            cosfrunze[i]=NULL;
+        //colectareFrunze(parent,cosfrunze,&index);
 
-        afisareFrunze(output,&cosfrunze,index);
+        //afisareFrunze(output,cosfrunze,index);
 
         // se elibereaza memoria
         freeTree(parent);
         freeList(company);
-        for(int i=0;i<index;i++)
-            free(cosfrunze+i);
+        free(cosfrunze);
 
         // se inchid fisierele
         /*
