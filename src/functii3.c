@@ -109,7 +109,12 @@ void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
             if ((*company)->valoare < price[*n + index])
             {
                 if (current->right == NULL)
+                {
                     current->right = (ROOT *)malloc(sizeof(ROOT));
+                    current->right->left = NULL;
+                    current->right->right = NULL;
+                    current->right->nod = NULL;
+                }
                 if (current->right->nod == NULL)
                     current->right->nod = nod;
                 else
@@ -123,7 +128,12 @@ void frunzeTree(ROOT *root, double price[], int nr, nodeA **company, int *n)
             {
                 // s a ajuns la frunza
                 if (current->left == NULL)
+                {
                     current->left = (ROOT *)malloc(sizeof(ROOT));
+                    current->left->left = NULL;
+                    current->left->right = NULL;
+                    current->left->nod = NULL;
+                }
                 if (current->left->nod == NULL)
                     current->left->nod = nod;
                 else
@@ -203,15 +213,16 @@ void colectareFrunze(ROOT *root, nodeA **cosfrunze, int *indexcolectare)
         return;
 
     // este frunza
-    if (root->left == NULL && root->right == NULL)
+    if (root->left == NULL && root->right == NULL && root->nod != NULL)
     {
         cosfrunze[*indexcolectare] = root->nod;
         (*indexcolectare)++;
+        return;
     }
 
     // parcurgere in-order
     colectareFrunze(root->left, cosfrunze, indexcolectare);
-    colectareFrunze(root->left, cosfrunze, indexcolectare);
+    colectareFrunze(root->right, cosfrunze, indexcolectare);
 }
 
 void afisareFrunze(FILE *output, nodeA **cosfrunze, int index)
