@@ -16,4 +16,4 @@ Daca N are valoarea:
   Pentru a modifica ce se intampla intr-un anumit scenariu, se pot accesa fisierele taskN.h si functiiN.c, unde N este numaraul scenariului care se doreste sa fie schimbat.
 
   Imbunatatiri:
-  Fiecare tablou unidimensional sau bidimensional prezent atat in codul sursa, cat si in fisierele pentru fiecare scenariu, care este alocat static, poate sa fie alocat dinamic.
+  Fiecare tablou unidimensional sau bidimensional prezent atat in codul sursa, cat si in fisierele pentru fiecare scenariu, care este alocat static, poate sa fie alocat dinamic. De asemenea, se poate modifica sau schimba cu totul functia de afisare de la taskul 3 intrucat aceasta nu afiseaza mereu corect.
